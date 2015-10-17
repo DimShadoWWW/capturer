@@ -1,0 +1,14 @@
+{
+  "development": {
+    "driver": "postgres",
+    "source": "user=postgres dbname=indata host=192.168.0.10 sslmode=disable"
+  },
+  "production": {
+    "driver": "postgres",
+    "source": "user=postgres dbname=indata host=192.168.0.10 sslmode=disable"
+  },
+  "test": {
+    "driver": "sqlite3",
+    "source": "test.db"
+  }
+}
