@@ -2,43 +2,43 @@ package db
 
 import (
 	"github.com/eaigner/hood"
-	"time"
 )
 
-type TagTable struct {
-	Id        hood.Id
-	Name      string    `json:"name"`
-	Weight    int64     `json:"weight",sql:"default(20)"`
-	CreatedOn time.Time `json:"created_on"`
+type Tag struct {
+	Id      hood.Id
+	Name    string       `json:"name" validate:"presence"`
+	Weight  int64        `json:"weight" sql:"default(20)"`
+	Created hood.Created `json:"created"`
+	Updated hood.Updated `json:"updated"`
 }
 
-func (table *TagTable) Indexes(indexes *hood.Indexes) {
-	indexes.Add("tname_index", "name")
+func (table *Tag) Indexes(indexes *hood.Indexes) {
+	indexes.AddUnique("tname_index", "name")
 }
 
-type ContactTable struct {
+type Contact struct {
 	Id          hood.Id
-	Name        string    `json:"name"`
-	Weight      int64     `json:"weight",sql:"default(20)"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	CreatedOn   time.Time `json:"created_on"`
+	Name        string       `json:"name" validate:"presence"`
+	Weight      int64        `json:"weight" sql:"default(20)"`
+	Title       string       `json:"title" validate:"presence"`
+	Description string       `json:"description" validate:"presence"`
+	Created     hood.Created `json:"created"`
+	Updated     hood.Updated `json:"updated"`
 }
 
-func (table *ContactTable) Indexes(indexes *hood.Indexes) {
-	indexes.Add("cname_index", "name")
-	indexes.Add("title_index", "title")
+func (table *Contact) Indexes(indexes *hood.Indexes) {
+	indexes.AddUnique("cname_index", "name")
+	indexes.AddUnique("title_index", "title")
 }
 
-type TagsContactTable struct {
+type TagContact struct {
 	Id        hood.Id
 	ContactId int64
 	TagId     int64
-	CreatedOn time.Time
+	Created   hood.Created `json:"created"`
+	Updated   hood.Updated `json:"updated"`
 }
 
-func (table *TagsContactTable) Indexes(indexes *hood.Indexes) {
-	indexes.Add("contact_index", "contact_id")
-	indexes.Add("tag_index", "tag_id")
-	indexes.AddUnique("tag_contact", "contact_id", "tag_id")
+func (table *TagContact) Indexes(indexes *hood.Indexes) {
+	indexes.AddUnique("tag_contact_index", "contact_id", "tag_id")
 }

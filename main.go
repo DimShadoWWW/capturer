@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -13,6 +12,7 @@ import (
 	locApi "github.com/DimShadoWWW/capturer/api"
 	"github.com/ant0ine/go-json-rest/rest"
 	// "github.com/coreos/go-semver/semver"
+	"github.com/eaigner/hood"
 	"github.com/kardianos/osext"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
@@ -84,7 +84,6 @@ func load(path, env string) (config, error) {
 	if err != nil {
 		return config{}, err
 	}
-	fmt.Printf("%#v\n", envs)
 	c, ok := envs[env]
 	if !ok {
 		return c, fmt.Errorf("config entry for specified environment '%s' not found", env)
@@ -98,7 +97,8 @@ type config struct {
 }
 
 var (
-	db      *sql.DB
+	// db      *sql.DB
+	db      *hood.Hood
 	flagEnv = flag.String("env", "development", "which DB environment to use")
 )
 
@@ -116,7 +116,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db, err := sql.Open(dbconf.Driver, dbconf.Source)
+	// db, err := sql.Open(dbconf.Driver, dbconf.Source)
+	db, err := hood.Open(dbconf.Driver, dbconf.Source)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -125,7 +126,6 @@ func main() {
 	// 	MinVersion: "1.0.0",
 	// 	MaxVersion: "1.0.0",
 	// }
-
 	api := locApi.Api{Db: db}
 	rapi := rest.NewApi()
 	rapi.Use(rest.DefaultDevStack...)
@@ -134,6 +134,7 @@ func main() {
 		rest.Get("/tags", api.GetAllTags),
 		rest.Post("/tags", api.PostTag),
 		rest.Get("/tags/:name", api.GetTag),
+		rest.Post("/tags/:name", api.UpdateTag),
 		rest.Delete("/tags/:name", api.DeleteTag),
 
 		// rest.Get("/#version/message", svmw.MiddlewareFunc(
@@ -157,5 +158,7 @@ func main() {
 	}
 	rapi.SetApp(router)
 	http.Handle("/api/", http.StripPrefix("/api", rapi.MakeHandler()))
+
+	log.Println("Started")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

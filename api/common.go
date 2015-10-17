@@ -1,15 +1,10 @@
 package api
 
-import (
-	"database/sql"
-	"time"
+import "github.com/eaigner/hood"
 
-	"github.com/eaigner/hood"
-)
-
-// Tag Struct
+// Api Struct
 type Api struct {
-	Db *sql.DB
+	Db *hood.Hood
 }
 
 // TagContact Struct
@@ -17,5 +12,12 @@ type TagContact struct {
 	Id        hood.Id
 	ContactId int64
 	TagId     int64
-	CreatedOn time.Time
+	Created   hood.Created `json:"created"`
+	Updated   hood.Updated `json:"updated"`
+}
+
+func (table *TagContact) Indexes(indexes *hood.Indexes) {
+	// indexes.Add("contact_index", "contact_id") // params: indexName, unique, columns...
+	// indexes.Add("tag_index", "tag_id")         // params: indexName, unique, columns...
+	indexes.AddUnique("tag_contact_index", "contact_id", "tag_id")
 }
