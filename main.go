@@ -15,6 +15,7 @@ import (
 	// "github.com/coreos/go-semver/semver"
 	"github.com/kardianos/osext"
 	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // type semVerMiddleware struct {

@@ -8,11 +8,10 @@ import (
 
 // Contact Struct
 type Contact struct {
-	ID          hood.Id
+	Id          hood.Id
 	Name        string    `json:"name"`
 	Weight      int64     `json:"weight",sql:"default(20)"`
 	Title       string    `json:"title"`
-	Tags        []*Tag    `json:"tags"`
 	Description string    `json:"description"`
-	Created     time.Time `json:"created_on"`
+	CreatedOn   time.Time `json:"created_on"`
 }
