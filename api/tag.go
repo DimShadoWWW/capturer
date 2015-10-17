@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -63,7 +62,6 @@ func (a *Api) PostTag(w rest.ResponseWriter, r *rest.Request) {
 
 	// Start a transaction
 	tx := a.Db.Begin()
-	log.Printf("tag: %#v", tag)
 	_, err = tx.Save(&tag)
 	if err != nil {
 		log.Println(err)
@@ -107,7 +105,6 @@ func (a *Api) UpdateTag(w rest.ResponseWriter, r *rest.Request) {
 	if len(tags) == 1 {
 		// Start a transaction
 		tx := a.Db.Begin()
-		log.Printf("tag: %#v", tags[0])
 		_, err = tx.Save(&tags[0])
 		if err != nil {
 			log.Println(err)
@@ -134,26 +131,39 @@ func (a *Api) UpdateTag(w rest.ResponseWriter, r *rest.Request) {
 // DeleteTag delete tag
 func (a *Api) DeleteTag(w rest.ResponseWriter, r *rest.Request) {
 	name := r.PathParam("name")
-	tag := Tag{Name: name}
 
-	// Start a transaction
-	tx := a.Db.Begin()
-
-	id, err := tx.Delete(&tag)
+	var tags []Tag
+	err := a.Db.Where("name", "=", name).OrderBy("name").Limit(1).Find(&tags)
 	if err != nil {
 		log.Println(err)
-		rest.Error(w, "Failed to delete", http.StatusInternalServerError)
+		rest.NotFound(w, r)
 		return
 	}
 
-	fmt.Println("deleted id:", id) // [1 2 3 4 5]
+	if len(tags) == 1 {
+		// Start a transaction
+		tx := a.Db.Begin()
 
-	// Commit changes
-	err = tx.Commit()
-	if err != nil {
+		_, err := tx.Delete(&tags[0])
+		if err != nil {
+			log.Println(err)
+			rest.Error(w, "Failed to delete", http.StatusInternalServerError)
+			return
+		}
+
+		// Commit changes
+		err = tx.Commit()
+		if err != nil {
+			log.Println(err)
+			rest.Error(w, "Failed to delete", http.StatusInternalServerError)
+			return
+		}
+
+	} else {
 		log.Println(err)
-		rest.Error(w, "Failed to delete", http.StatusInternalServerError)
+		rest.NotFound(w, r)
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
 }
