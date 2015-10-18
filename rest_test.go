@@ -8,6 +8,7 @@ import (
 	locApi "github.com/DimShadoWWW/capturer/api"
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/ant0ine/go-json-rest/rest/test"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/eaigner/hood"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
@@ -61,7 +62,10 @@ func TestTagApi(t *testing.T) {
 	// recorded.ContentEncodingIsGzip()
 	recorded.BodyIs(`[]`)
 
-	recorded = test.RunRequest(t, handler, test.MakeSimpleRequest("POST", "http://localhost/api/tags", &map[string]string{"name": "a"}))
+	recorded = test.RunRequest(t, handler, test.MakeSimpleRequest("POST", "http://localhost/api/tags",
+		&map[string]string{
+			"name": "a",
+		}))
 	recorded.CodeIs(200)
 	recorded.ContentTypeIsJson()
 	// recorded.ContentEncodingIsGzip()
@@ -87,6 +91,92 @@ func TestTagApi(t *testing.T) {
 	recorded.ContentTypeIsJson()
 
 	recorded = test.RunRequest(t, handler, test.MakeSimpleRequest("GET", "http://localhost/api/tags", nil))
+	recorded.CodeIs(200)
+	recorded.ContentTypeIsJson()
+	// recorded.ContentEncodingIsGzip()
+	recorded.BodyIs(`[]`)
+}
+
+func TestContactApi(t *testing.T) {
+
+	// db, err := sql.Open(dbconf.Driver, dbconf.Source)
+	db, err := hood.Open("postgres", "user=postgres dbname=indata_test host=192.168.0.10 sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	api := locApi.Api{Db: db}
+	rapi := rest.NewApi()
+	rapi.Use(rest.DefaultDevStack...)
+	router, err := rest.MakeRouter(
+		rest.Get("/contacts", api.GetAllContacts),
+		rest.Post("/contacts", api.PostContact),
+		rest.Get("/contacts/:name", api.GetContact),
+		rest.Post("/contacts/:name", api.UpdateContact),
+		rest.Delete("/contacts/:name", api.DeleteContact),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	rapi.SetApp(router)
+
+	// Start a transaction
+	tx := db.Begin()
+
+	tx.DropTableIfExists(locApi.Tag{})
+	tx.DropTableIfExists(locApi.Contact{})
+	tx.DropTableIfExists(locApi.TagContact{})
+
+	tx.CreateTableIfNotExists(locApi.Tag{})
+	tx.CreateTableIfNotExists(locApi.Contact{})
+	tx.CreateTableIfNotExists(locApi.TagContact{})
+
+	// Commit changes
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+	}
+
+	handler := http.StripPrefix("/api", rapi.MakeHandler())
+
+	recorded := test.RunRequest(t, handler, test.MakeSimpleRequest("GET", "http://localhost/api/contacts", nil))
+	recorded.CodeIs(200)
+	recorded.ContentTypeIsJson()
+	// recorded.ContentEncodingIsGzip()
+	recorded.BodyIs(`[]`)
+
+	recorded = test.RunRequest(t, handler, test.MakeSimpleRequest("POST", "http://localhost/api/contacts",
+		&map[string]string{
+			"name":        "a",
+			"title":       "a",
+			"description": "a",
+		}))
+	recorded.CodeIs(200)
+	recorded.ContentTypeIsJson()
+	// recorded.ContentEncodingIsGzip()
+
+	recorded = test.RunRequest(t, handler, test.MakeSimpleRequest("GET", "http://localhost/api/contacts", nil))
+	recorded.CodeIs(200)
+	recorded.ContentTypeIsJson()
+	// recorded.ContentEncodingIsGzip()
+
+	var contacts []locApi.Contact
+	err = recorded.DecodeJsonPayload(&contacts)
+
+	if len(contacts) != 1 {
+		t.Errorf(`Expected one element and got %d`, len(contacts))
+	}
+
+	if contacts[0].Name != "a" {
+		t.Error(`Expected contact name "a"`)
+	}
+
+	spew.Dump(contacts)
+	recorded = test.RunRequest(t, handler, test.MakeSimpleRequest("DELETE", "http://localhost/api/contacts/"+contacts[0].Name, nil))
+	recorded.CodeIs(200)
+	recorded.ContentTypeIsJson()
+
+	recorded = test.RunRequest(t, handler, test.MakeSimpleRequest("GET", "http://localhost/api/contacts", nil))
 	recorded.CodeIs(200)
 	recorded.ContentTypeIsJson()
 	// recorded.ContentEncodingIsGzip()

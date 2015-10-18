@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -66,7 +65,6 @@ func (a *Api) PostContact(w rest.ResponseWriter, r *rest.Request) {
 
 	// Start a transaction
 	tx := a.Db.Begin()
-	log.Printf("contact: %#v", contact)
 	_, err = tx.Save(&contact)
 	if err != nil {
 		log.Println(err)
@@ -110,7 +108,6 @@ func (a *Api) UpdateContact(w rest.ResponseWriter, r *rest.Request) {
 	if len(contacts) == 1 {
 		// Start a transaction
 		tx := a.Db.Begin()
-		log.Printf("contact: %#v", contacts[0])
 		_, err = tx.Save(&contacts[0])
 		if err != nil {
 			log.Println(err)
@@ -126,6 +123,7 @@ func (a *Api) UpdateContact(w rest.ResponseWriter, r *rest.Request) {
 			return
 		}
 	} else {
+		log.Println(err)
 		rest.NotFound(w, r)
 		return
 	}
@@ -136,26 +134,39 @@ func (a *Api) UpdateContact(w rest.ResponseWriter, r *rest.Request) {
 // DeleteContact delete contact
 func (a *Api) DeleteContact(w rest.ResponseWriter, r *rest.Request) {
 	name := r.PathParam("name")
-	contact := Contact{Name: name}
 
-	// Start a transaction
-	tx := a.Db.Begin()
-
-	id, err := tx.Delete(&contact)
+	var contacts []Contact
+	err := a.Db.Where("name", "=", name).OrderBy("name").Limit(1).Find(&contacts)
 	if err != nil {
 		log.Println(err)
-		rest.Error(w, "Failed to delete", http.StatusInternalServerError)
+		rest.NotFound(w, r)
 		return
 	}
 
-	fmt.Println("deleted id:", id) // [1 2 3 4 5]
+	if len(contacts) == 1 {
+		// Start a transaction
+		tx := a.Db.Begin()
 
-	// Commit changes
-	err = tx.Commit()
-	if err != nil {
+		_, err := tx.Delete(&contacts[0])
+		if err != nil {
+			log.Println(err)
+			rest.Error(w, "Failed to delete", http.StatusInternalServerError)
+			return
+		}
+
+		// Commit changes
+		err = tx.Commit()
+		if err != nil {
+			log.Println(err)
+			rest.Error(w, "Failed to delete", http.StatusInternalServerError)
+			return
+		}
+
+	} else {
 		log.Println(err)
-		rest.Error(w, "Failed to delete", http.StatusInternalServerError)
+		rest.NotFound(w, r)
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
 }

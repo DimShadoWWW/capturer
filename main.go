@@ -137,6 +137,12 @@ func main() {
 		rest.Post("/tags/:name", api.UpdateTag),
 		rest.Delete("/tags/:name", api.DeleteTag),
 
+		rest.Get("/contacts", api.GetAllContacts),
+		rest.Post("/contacts", api.PostContact),
+		rest.Get("/contacts/:name", api.GetContact),
+		rest.Post("/contacts/:name", api.UpdateContact),
+		rest.Delete("/contacts/:name", api.DeleteContact),
+
 		// rest.Get("/#version/message", svmw.MiddlewareFunc(
 		// 	func(w rest.ResponseWriter, req *rest.Request) {
 		// 		version := req.Env["VERSION"].(*semver.Version)
