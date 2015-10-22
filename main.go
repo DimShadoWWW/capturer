@@ -9,7 +9,7 @@ import (
 	"os"
 	"path"
 
-	locApi "github.com/DimShadoWWW/capturer/api"
+	api "github.com/DimShadoWWW/capturer/api"
 	"github.com/ant0ine/go-json-rest/rest"
 	// "github.com/coreos/go-semver/semver"
 	"github.com/eaigner/hood"
@@ -126,22 +126,22 @@ func main() {
 	// 	MinVersion: "1.0.0",
 	// 	MaxVersion: "1.0.0",
 	// }
-	api := locApi.Api{Db: db}
+	serviceApi := api.Api{Db: db}
 	rapi := rest.NewApi()
 	rapi.Use(rest.DefaultDevStack...)
 	router, err := rest.MakeRouter(
 
-		rest.Get("/tags", api.GetAllTags),
-		rest.Post("/tags", api.PostTag),
-		rest.Get("/tags/:name", api.GetTag),
-		rest.Post("/tags/:name", api.UpdateTag),
-		rest.Delete("/tags/:name", api.DeleteTag),
+		rest.Get("/tags", serviceApi.GetAllTags),
+		rest.Post("/tags", serviceApi.PostTag),
+		rest.Get("/tags/:name", serviceApi.GetTag),
+		rest.Post("/tags/:name", serviceApi.UpdateTag),
+		rest.Delete("/tags/:name", serviceApi.DeleteTag),
 
-		rest.Get("/contacts", api.GetAllContacts),
-		rest.Post("/contacts", api.PostContact),
-		rest.Get("/contacts/:name", api.GetContact),
-		rest.Post("/contacts/:name", api.UpdateContact),
-		rest.Delete("/contacts/:name", api.DeleteContact),
+		rest.Get("/contacts", serviceApi.GetAllContacts),
+		rest.Post("/contacts", serviceApi.PostContact),
+		rest.Get("/contacts/:name", serviceApi.GetContact),
+		rest.Post("/contacts/:name", serviceApi.UpdateContact),
+		rest.Delete("/contacts/:name", serviceApi.DeleteContact),
 
 		// rest.Get("/#version/message", svmw.MiddlewareFunc(
 		// 	func(w rest.ResponseWriter, req *rest.Request) {

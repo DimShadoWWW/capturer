@@ -32,6 +32,10 @@ func (a *Api) GetTag(w rest.ResponseWriter, r *rest.Request) {
 		rest.NotFound(w, r)
 		return
 	}
+	if len(tags) == 0 {
+		rest.NotFound(w, r)
+		return
+	}
 
 	w.WriteJson(tags[0])
 }
@@ -76,7 +80,8 @@ func (a *Api) PostTag(w rest.ResponseWriter, r *rest.Request) {
 		rest.Error(w, "Failed", http.StatusInternalServerError)
 		return
 	}
-
+	log.Println("POST")
+	log.Printf("%#v", &tag)
 	w.WriteJson(&tag)
 }
 
