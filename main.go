@@ -12,7 +12,7 @@ import (
 	api "github.com/DimShadoWWW/capturer/api"
 	"github.com/ant0ine/go-json-rest/rest"
 	// "github.com/coreos/go-semver/semver"
-	"github.com/eaigner/hood"
+	"github.com/DimShadoWWW/hood"
 	"github.com/kardianos/osext"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"

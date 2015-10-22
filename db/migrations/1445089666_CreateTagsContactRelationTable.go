@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/DimShadoWWW/capturer/api"
-	"github.com/eaigner/hood"
+	"github.com/DimShadoWWW/hood"
 )
 
 func (m *M) CreateTagsContactRelationTable_1445089666_Up(hd *hood.Hood) {

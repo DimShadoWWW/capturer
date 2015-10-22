@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/DimShadoWWW/hood"
 	"github.com/ant0ine/go-json-rest/rest"
-	"github.com/eaigner/hood"
 )
 
 // Contact Struct
@@ -55,7 +55,7 @@ func (a *Api) GetAllContacts(w rest.ResponseWriter, r *rest.Request) {
 // PostContact add new contact
 func (a *Api) PostContact(w rest.ResponseWriter, r *rest.Request) {
 	log.Println("POST")
-	contact := Contact{}
+	contact := Contact{Weight: 20}
 	err := r.DecodeJsonPayload(&contact)
 	if err != nil {
 		log.Println(err)

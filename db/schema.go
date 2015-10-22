@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/eaigner/hood"
+	"github.com/DimShadoWWW/hood"
 )
 
 type Tag struct {

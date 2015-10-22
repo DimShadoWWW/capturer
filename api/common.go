@@ -1,6 +1,6 @@
 package api
 
-import "github.com/eaigner/hood"
+import "github.com/DimShadoWWW/hood"
 
 // Api Struct
 type Api struct {

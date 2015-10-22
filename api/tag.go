@@ -4,15 +4,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/DimShadoWWW/hood"
 	"github.com/ant0ine/go-json-rest/rest"
-	"github.com/eaigner/hood"
 )
 
 // Tag Struct
 type Tag struct {
 	Id      hood.Id
 	Name    string       `json:"name" validate:"presence"`
-	Weight  int64        `json:"weight" sql:"default(20)"`
+	Weight  int64        `json:"weight,omitempty" sql:"default(20)"`
 	Created hood.Created `json:"created"`
 	Updated hood.Updated `json:"updated"`
 }
@@ -56,7 +56,7 @@ func (a *Api) GetAllTags(w rest.ResponseWriter, r *rest.Request) {
 // PostTag add new tag
 func (a *Api) PostTag(w rest.ResponseWriter, r *rest.Request) {
 	log.Println("POST")
-	tag := Tag{}
+	tag := Tag{Weight: 20}
 	err := r.DecodeJsonPayload(&tag)
 	if err != nil {
 		log.Println(err)

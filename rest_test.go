@@ -9,7 +9,7 @@ import (
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/ant0ine/go-json-rest/rest/test"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/eaigner/hood"
+	"github.com/DimShadoWWW/hood"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 )
